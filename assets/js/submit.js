@@ -1,43 +1,51 @@
-document.addEventListener("DOMContentLoaded", function() {
-  const form = document.querySelector("form[action*='formspree.io']");
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("orderForm");
+  const submitBtn = form.querySelector('input[type="image"]');
 
-  if (!form) return;
+  if (!form || !submitBtn) {
+    console.error("Order form or submit button not found");
+    return;
+  }
 
-  form.addEventListener("submit", function(e) {
-    e.preventDefault(); // stop default submission
+  submitBtn.addEventListener("click", function (e) {
+    e.preventDefault();
 
-    // Check validity of the form
-    if (!form.checkValidity()) {
-      form.reportValidity(); // show built-in HTML5 messages
-      return; // stop submission
-    }
+    // Disable button to prevent double submits
+    submitBtn.style.pointerEvents = "none";
+    submitBtn.style.opacity = "0.6";
 
-    const submitButton = form.querySelector('input[type="submit"]');
-    submitButton.disabled = true;
-    const originalValue = submitButton.value;
-    submitButton.value = "Submitting...";
+    // Collect cart items (one per line)
+    const cartItems = Array.from(document.querySelectorAll("#cartItems li"))
+      .map(li => li.textContent.trim())
+      .join("\n");
 
-    const formData = new FormData(form);
+    document.getElementById("cartData").value = cartItems || "No items";
 
-    fetch(form.action, {
-      method: "POST",
-      body: formData,
-      headers: { 'Accept': 'application/json' }
+    // Send confirmation email to customer
+    emailjs.sendForm(
+      "service_l2dwyoa",
+      "template_pomqveb",
+      form
+    )
+    .then(() => {
+      // Send internal notification email
+      return emailjs.sendForm(
+        "service_l2dwyoa",
+        "template_x9yrjrp",
+        form
+      );
     })
-      .then(response => {
-        if (response.ok) {
-          window.location.href = "thanks.html";
-        } else {
-          alert("There was a problem submitting your form. Please try again.");
-          submitButton.disabled = false;
-          submitButton.value = originalValue;
-        }
-      })
-      .catch(error => {
-        console.error("Form submission error:", error);
-        alert("There was a problem submitting your form. Please try again.");
-        submitButton.disabled = false;
-        submitButton.value = originalValue;
-      });
+    .then(() => {
+      // Success → redirect
+      window.location.href = "thanks.html";
+    })
+    .catch(error => {
+      console.error("EmailJS error:", error);
+      alert("There was a problem submitting your order. Please try again.");
+
+      // Re-enable button on failure
+      submitBtn.style.pointerEvents = "auto";
+      submitBtn.style.opacity = "1";
+    });
   });
 });
