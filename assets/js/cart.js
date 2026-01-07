@@ -21,7 +21,7 @@ function renderCart() {
     if (!cartItems) return; // skip if container does not exist
 
     cartItems.innerHTML = ""; // clear existing content
-    let total = 0;
+    let total = 5;
 
     if (cart.length === 0) {
         cartItems.innerHTML = "<li>Your cart is empty.</li>";
@@ -39,7 +39,7 @@ function renderCart() {
     });
 
     const totalLi = document.createElement('li');
-    totalLi.innerHTML = `<strong>Total: $${total}</strong>`;
+    totalLi.innerHTML = `<strong>Total: $${total} (Includes Shipping)</strong>`;
     cartItems.appendChild(totalLi);
 }
 
