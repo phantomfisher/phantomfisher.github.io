@@ -8,9 +8,10 @@ const targetImage = document.getElementById('targetImage');
 // Map classes to prices
 const classPrices = {
     keychain: 12,
-    sticker: 3,
+    sticker: 4,
     resin: 10,
-    postcard: 5
+    postcard: 5,
+    button: 3
 };
 
 // Function to render the cart in HTML
